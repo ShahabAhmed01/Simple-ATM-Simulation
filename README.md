@@ -1,55 +1,73 @@
-# Simple-ATM-Simulation
-Terminal-based ATM simulation in C++ demonstrating OOP with multi-account management, PIN auth, and ANSI color UI.
-<div align="center">
+# Simple ATM Simulation
 
-# 🏧 ATM Simulation
+**Terminal-based ATM simulator in C++** demonstrating object-oriented design: accounts, PIN authentication, transactions, and an ANSI-colored console UI.
 
-*Terminal banking — built in C++*
-
-![C++](https://img.shields.io/badge/C++17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)
-![OOP](https://img.shields.io/badge/OOP-Encapsulation-blueviolet?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Complete-00e676?style=for-the-badge)
-
-</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/C++-17-00599C?style=flat-square&logo=cplusplus&logoColor=white" alt="C++" />
+  <img src="https://img.shields.io/badge/Paradigm-OOP-blueviolet?style=flat-square" alt="OOP" />
+  <img src="https://img.shields.io/badge/Interface-ANSI_Terminal-4D4D4D?style=flat-square&logo=windows-terminal&logoColor=white" alt="Terminal" />
+</p>
 
 ---
 
-A visually styled, color-coded ATM simulation demonstrating core **OOP concepts** in C++ —
-encapsulation, class design, and controller separation — with a full ANSI terminal UI.
+## Overview
 
----
+A single-file C++ console application that models a small bank ATM. Users authenticate with account ID and PIN, then deposit, withdraw, check balance, or view history. An admin mode supports adding and removing accounts. The UI uses ANSI colors and a short animated splash screen.
 
-### ✦ Features
+## Features
 
-- 🔐 PIN authentication with 3-attempt lockout
-- 💰 Deposit, withdraw, check balance
-- 📋 Transaction history per account
-- 👥 Multi-account support
-- 🛠️ Admin panel — add & delete accounts
-- 🎨 ANSI color UI with animated splash screen
+- PIN authentication with **3-attempt lockout**
+- **Deposit**, **withdraw**, and **balance inquiry**
+- **Per-account transaction history**
+- **Multiple customer accounts** plus admin access
+- **Admin panel** — create and delete accounts
+- **ANSI color UI** with animated startup banner
 
----
+## Quick start
 
-### ⚡ Quick Start
+**Compile and run** (from the repository root):
+
 ```bash
-g++ -std=c++17 -o atm atm.cpp && ./atm
+g++ -std=c++17 -o atm "Atm Simulation.cpp" && ./atm
 ```
 
-> Windows: use **Windows Terminal** for full color support.
+**Windows (PowerShell / CMD):**
 
----
+```powershell
+g++ -std=c++17 -o atm.exe "Atm Simulation.cpp"
+.\atm.exe
+```
 
-### 🔑 Demo Credentials
+> Use **Windows Terminal** or a modern terminal for full ANSI color support.
 
-| Account | ID | PIN |
-|---|---|---|
+## Demo credentials
+
+| Account      | ID   | PIN    |
+|-------------|------|--------|
 | Shahab Ahmed | 1001 | `1234` |
-| Sara Khan | 1002 | `4321` |
-| Ali Hassan | 1003 | `0000` |
-| Admin | — | `9999` |
+| Sara Khan    | 1002 | `4321` |
+| Ali Hassan   | 1003 | `0000` |
+| Admin        | —    | `9999` |
 
----
+## What this project demonstrates
 
-<div align="center">
-  <sub>Task 4 · C++ OOP Internship</sub>
-</div>
+- **Encapsulation** — account data and operations behind classes
+- **Separation of concerns** — UI flow vs. banking logic
+- **STL usage** — containers and strings for account storage
+- **User input validation** — PIN attempts and menu-driven control flow
+
+## Project structure
+
+```
+Simple-ATM-Simulation/
+├── Atm Simulation.cpp   # Application source
+└── README.md
+```
+
+## Author
+
+**Shahab Ahmed** — [GitHub](https://github.com/ShahabAhmed01) · [LinkedIn](https://www.linkedin.com/in/shahabahmed01/) · [Portfolio](https://shahabahmed01.github.io)
+
+## License
+
+Open source for learning and portfolio use.
