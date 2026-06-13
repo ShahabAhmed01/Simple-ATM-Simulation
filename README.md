@@ -14,6 +14,17 @@
 
 A single-file C++ console application that models a small bank ATM. Users authenticate with account ID and PIN, then deposit, withdraw, check balance, or view history. An admin mode supports adding and removing accounts. The UI uses ANSI colors and a short animated splash screen.
 
+## Screenshots
+
+<p align="center">
+  <img src="demo-assets/screenshots/01-landing-page.png" width="45%" alt="Login Screen">
+  <img src="demo-assets/screenshots/02-dashboard.png" width="45%" alt="Main Menu">
+</p>
+<p align="center">
+  <img src="demo-assets/screenshots/03-deposit-flow.png" width="45%" alt="Deposit Flow">
+  <img src="demo-assets/screenshots/04-history.png" width="45%" alt="Transaction History">
+</p>
+
 ## Features
 
 - PIN authentication with **3-attempt lockout**
