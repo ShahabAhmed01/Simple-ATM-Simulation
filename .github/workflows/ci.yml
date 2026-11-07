@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux (GCC)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build with warnings as errors
+        run: g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -O2 -o atm "Atm Simulation.cpp"
+
+      - name: Run integration tests
+        run: python3 -m unittest discover -s tests -v
+
+  windows:
+    name: Windows (MinGW-w64)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up MSYS2 with GCC
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        with:
+          msystem: UCRT64
+          install: mingw-w64-ucrt-x86_64-gcc
+
+      - name: Build with warnings as errors
+        shell: pwsh
+        run: |
+          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+          g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -O2 -o atm.exe "Atm Simulation.cpp"
+
+      - name: Run integration tests
+        shell: pwsh
+        run: |
+          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+          python -m unittest discover -s tests -v
+
+  macos:
+    name: macOS (Clang)
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build with warnings as errors
+        run: clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -O2 -o atm "Atm Simulation.cpp"
+
+      - name: Run integration tests
+        env:
+          CXX: clang++
+        run: python3 -m unittest discover -s tests -v

@@ -1,0 +1,22 @@
+# Build output
+atm
+atm.exe
+*.o
+*.obj
+*.exe
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.venv-*/
+venv/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local captures and scratch files
+demo-assets/tools/session.local.json

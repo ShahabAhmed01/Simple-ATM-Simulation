@@ -1,9 +1,13 @@
 /*
-    atm.cpp  --  Visually Stunning ATM Simulation
-    ----------------------------------------------
-    Compile:  g++ -std=c++17 -o atm atm.cpp
+    Simple ATM Simulation
+    ---------------------
+    A single-file C++17 console ATM demo.
+
+    Compile:  g++ -std=c++17 -O2 -o atm "Atm Simulation.cpp"
     Run:      ./atm
-    Windows:  Use Windows Terminal for full color support
+    Windows:  Use Windows Terminal for full color support.
+    Options:  --fast  skip animation delays (useful for tests)
+    Tests:    python -m unittest discover -s tests -v
 */
 
 #include <iostream>
@@ -16,6 +20,9 @@
 #include <algorithm>
 #include <thread>
 #include <chrono>
+#include <cctype>
+#include <cmath>
+#include <cstdlib>
 
 #ifdef _WIN32
   #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
@@ -25,6 +32,8 @@
 #endif
 
 using namespace std;
+
+static bool gFastMode = false;
 
 // ================================================================
 //  ANSI COLOR PALETTE
@@ -65,8 +74,18 @@ static void enableAnsi() {
 }
 
 static void cls()             { cout << "\033[2J\033[H"; }
-static void sleep_ms(int ms)  { this_thread::sleep_for(chrono::milliseconds(ms)); }
+static void sleep_ms(int ms)  {
+    if (gFastMode) return;
+    this_thread::sleep_for(chrono::milliseconds(ms));
+}
 static void flushIn()         { cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n'); }
+
+static void exitOnEof() {
+    if (cin.eof()) {
+        cout << "\n";
+        exit(0);
+    }
+}
 
 static string timestamp() {
     time_t now = time(nullptr);
@@ -87,8 +106,13 @@ static double readAmount(const string& lbl) {
     double v;
     while (true) {
         cout << C::DIM << "   " << lbl << " " << C::RST << C::BYLW << "$" << C::RST;
-        if (cin >> v && v > 0.0) { flushIn(); return v; }
-        cout << C::BRED << "   invalid — enter a positive number.\n" << C::RST;
+        if (cin >> v) {
+            if (std::isfinite(v) && v > 0.0) { flushIn(); return v; }
+            cout << C::BRED << "   invalid — enter a positive number.\n" << C::RST;
+        } else {
+            exitOnEof();
+            cout << C::BRED << "   invalid — enter a positive number.\n" << C::RST;
+        }
         flushIn();
     }
 }
@@ -97,8 +121,24 @@ static int readInt(const string& prompt, int lo, int hi) {
     int v;
     while (true) {
         cout << C::DIM << "   " << prompt << " " << C::RST;
-        if (cin >> v && v >= lo && v <= hi) { flushIn(); return v; }
-        cout << C::BRED << "   enter " << lo << "-" << hi << ".\n" << C::RST;
+        if (cin >> v) {
+            if (v >= lo && v <= hi) { flushIn(); return v; }
+            cout << C::BRED << "   enter " << lo << "-" << hi << ".\n" << C::RST;
+        } else {
+            exitOnEof();
+            cout << C::BRED << "   enter " << lo << "-" << hi << ".\n" << C::RST;
+        }
+        flushIn();
+    }
+}
+
+static int readAccountId(const string& prompt) {
+    while (true) {
+        cout << C::DIM << "   " << prompt << " " << C::RST;
+        int id;
+        if (cin >> id) { flushIn(); return id; }
+        exitOnEof();
+        cout << C::BRED << "   enter a numeric account ID.\n" << C::RST;
         flushIn();
     }
 }
@@ -106,7 +146,9 @@ static int readInt(const string& prompt, int lo, int hi) {
 static string readPin(const string& prompt) {
     string s;
     cout << C::DIM << "   " << prompt << " " << C::RST;
-    cin >> s; flushIn();
+    cin >> s;
+    if (cin.eof()) { cout << "\n"; exit(0); }
+    flushIn();
     return s;
 }
 
@@ -114,12 +156,15 @@ static string readLine(const string& prompt) {
     string s;
     cout << C::DIM << "   " << prompt << " " << C::RST;
     getline(cin, s);
+    if (cin.eof() && s.empty()) { cout << "\n"; exit(0); }
     return s;
 }
 
 static void anyKey() {
     cout << C::DIM << "\n   [ press enter ]" << C::RST;
-    cin.get();
+    if (cin.get() == EOF) {
+        if (cin.eof()) { cout << "\n"; exit(0); }
+    }
 }
 
 // ================================================================
@@ -171,10 +216,11 @@ static void splash() {
     cout << "      /_/  |_|/_/  /_/  /_/   \n";
     cout << C::RST;
     cout << C::CYN
-         << "      A D V A N C E D   B A N K I N G   T E R M I N A L\n"
+         << "      B A N K I N G   T E R M I N A L   S I M U L A T I O N\n"
          << C::RST;
     cout << "\n";
-    cout << "   " << C::DIM << "v2.4  |  secure session  |  " << timestamp() << C::RST << "\n\n";
+    cout << "   " << C::DIM << "single-file demo  |  in-memory session  |  "
+         << timestamp() << C::RST << "\n\n";
 
     // Loading bar
     cout << "   " << C::DIM << "initializing  " << C::RST;
@@ -289,8 +335,7 @@ class ATM {
         }
         listAccounts();
 
-        cout << C::DIM << "   Account ID: " << C::RST;
-        int id; cin >> id; flushIn();
+        int id = readAccountId("Account ID:");
         Account* acc = bank_.find(id);
         if (!acc) {
             cout << C::BRED << "\n   Account not found.\n" << C::RST;
@@ -477,7 +522,9 @@ class ATM {
                 string name = readLine("Full name:");
                 if (name.empty()) { cout << C::BRED << "   Name required.\n" << C::RST; anyKey(); continue; }
                 string pin = readPin("PIN (4 digits):");
-                if (pin.size() != 4 || !all_of(pin.begin(), pin.end(), ::isdigit)) {
+                if (pin.size() != 4 ||
+                    !all_of(pin.begin(), pin.end(),
+                            [](unsigned char c) { return std::isdigit(c) != 0; })) {
                     cout << C::BRED << "   PIN must be 4 digits.\n" << C::RST; anyKey(); continue;
                 }
                 double bal = readAmount("Initial deposit:");
@@ -493,8 +540,7 @@ class ATM {
                 header("DELETE ACCOUNT", C::BRED);
                 if (bank_.count() == 0) { cout << C::DIM << "   No accounts.\n" << C::RST; anyKey(); continue; }
                 listAccounts(C::BRED);
-                cout << C::DIM << "   Account ID to delete: " << C::RST;
-                int id; cin >> id; flushIn();
+                int id = readAccountId("Account ID to delete:");
                 Account* t = bank_.find(id);
                 if (!t) { cout << C::BRED << "   Not found.\n" << C::RST; anyKey(); continue; }
                 cout << C::BYLW << "   Delete \"" << t->name() << "\"? (y/n): " << C::RST;
@@ -540,7 +586,10 @@ public:
 // ================================================================
 //  MAIN
 // ================================================================
-int main() {
+int main(int argc, char* argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        if (string(argv[i]) == "--fast") gFastMode = true;
+    }
     enableAnsi();
     Bank bank;
     ATM  atm(bank);
