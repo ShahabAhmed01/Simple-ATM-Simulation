@@ -182,12 +182,9 @@ privately rather than opening a public issue.
 
 ## License
 
-No open-source license has been added to this repository yet. Copyright © 2026
-Shahab Ahmed. The source is publicly visible for viewing and portfolio review,
-but that does not by itself grant permission to copy, modify, or redistribute it.
+MIT — see [LICENSE](LICENSE).
 
-If you would like to reuse the code, please open an issue to discuss licensing
-first.
+Copyright © 2026 Shahab Ahmed.
 
 ## Author
 
