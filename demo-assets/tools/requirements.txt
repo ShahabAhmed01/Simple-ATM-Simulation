@@ -1,0 +1,7 @@
+# Asset tooling dependencies
+#
+# Used only to regenerate the README screenshots, demo GIF, and social preview.
+# The ATM application itself has no Python or third-party dependencies.
+Pillow==13.0.0
+pyte==0.8.2
+pywinpty==3.1.2; sys_platform == "win32"
