@@ -1,0 +1,7 @@
+# Binary asset handling
+*.png binary
+*.gif binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary
